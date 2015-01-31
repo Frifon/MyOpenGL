@@ -1,4 +1,5 @@
 #include "tgaimage.h"
+#include <vector>
 
 void draw_point(TGAImage & image, int x, int y, TGAColor color)
 {
