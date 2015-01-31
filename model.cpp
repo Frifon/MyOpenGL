@@ -87,6 +87,17 @@ struct obj
 
 		vector <vector <int> > zbuffer(width * 3, vector <int> (height * 3, -1000 * 1000 * 1000));
 
+		matrix ViewPort = matrix().viewport(width, height, depth);
+		matrix Projection = matrix().projection(camera);
+		matrix Look = matrix().lookat(camera, center, up);
+
+		matrix M = ViewPort * Projection * Look;
+		
+		matrix Mmini = Projection * Look;
+		matrix MminiIT = Mmini.trans().inverse4();
+
+		light = (Mmini * matrix(light, true)).make_vector().normalize();
+		
 		for (int i = 0; i < (int)faces.size(); i++)
 		{
 			face current = faces[i];
@@ -102,33 +113,13 @@ struct obj
 			point bn = current.normals[1].normalize();
 			point cn = current.normals[2].normalize();
 
-			matrix A = matrix(a);
-			matrix B = matrix(b);
-			matrix C = matrix(c);
+			a = (M * matrix(a)).make_point();
+			b = (M * matrix(b)).make_point();
+			c = (M * matrix(c)).make_point();
 
-			matrix AN = matrix(an, true);
-			matrix BN = matrix(bn, true);
-			matrix CN = matrix(cn, true);
-
-			matrix ViewPort = matrix().viewport(width, height, depth);
-			matrix Projection = matrix().projection(camera);
-			matrix Look = matrix().lookat(camera, center, up);
-
-			matrix M = ViewPort * Projection * Look;
-			
-			matrix Mtest = Projection * Look;
-
-			matrix MIT = Mtest.trans().inverse4();
-
-			a = (M * A).make_point();
-			b = (M * B).make_point();
-			c = (M * C).make_point();
-
-			// light = (Mtest * matrix(light, true)).make_vector().normalize();
-
-			an = (MIT * AN).make_vector().normalize();
-			bn = (MIT * BN).make_vector().normalize();
-			cn = (MIT * CN).make_vector().normalize();
+			an = (MminiIT * matrix(an, true)).make_vector().normalize();
+			bn = (MminiIT * matrix(bn, true)).make_vector().normalize();
+			cn = (MminiIT * matrix(cn, true)).make_vector().normalize();
 			
 			double intensity_a = an * light;
 			double intensity_b = bn * light;
