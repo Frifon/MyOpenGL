@@ -1,3 +1,5 @@
+#include "draw.cpp"
+
 struct obj
 {
 	vector <point> vertices;
