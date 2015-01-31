@@ -31,6 +31,16 @@ struct point
 
 };
 
+point operator * (point const & pt, double a)
+{
+	return point(pt.x * a, pt.y * a, pt.z * a);
+}
+
+point operator / (point const & pt, double a)
+{
+	return point(pt.x / a, pt.y / a, pt.z / a);
+}
+
 point operator + (point const & pt, double a)
 {
 	return point(pt.x + a, pt.y + a, pt.z + a);

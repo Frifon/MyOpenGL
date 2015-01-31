@@ -4,8 +4,8 @@ const TGAColor red = TGAColor(255, 0, 0, 255);
 const TGAColor green = TGAColor(0, 255, 0, 255);
 const TGAColor blue = TGAColor(0, 0, 255, 255);
 
-const int width = 5000;
-const int height = 5000;
+const int width = 1000;
+const int height = 1000;
 
 const point light = point(0.9, 1, 1);
 const point camera = point(-3, 3, 10);

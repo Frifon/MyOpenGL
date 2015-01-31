@@ -120,10 +120,16 @@ struct obj
 			an = (MminiIT * matrix(an, true)).make_vector().normalize();
 			bn = (MminiIT * matrix(bn, true)).make_vector().normalize();
 			cn = (MminiIT * matrix(cn, true)).make_vector().normalize();
+
+			double spec_a = pow(max(0., (an * (an * light * 2) - light).normalize().z), 10);
+			double spec_b = pow(max(0., (bn * (bn * light * 2) - light).normalize().z), 10);
+			double spec_c = pow(max(0., (cn * (cn * light * 2) - light).normalize().z), 10);
 			
-			double intensity_a = an * light;
-			double intensity_b = bn * light;
-			double intensity_c = cn * light;
+			// spec_a = spec_b = spec_c = 0;
+
+			double intensity_a = min(1., an * light + 1 * spec_a);
+			double intensity_b = min(1., bn * light + 1 * spec_b);
+			double intensity_c = min(1., cn * light + 1 * spec_c);
 
 			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap);
 		}
