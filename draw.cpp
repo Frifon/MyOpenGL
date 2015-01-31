@@ -1,5 +1,4 @@
 #include "tgaimage.h"
-#include <vector>
 #include "geometry.cpp"
 
 void draw_point(TGAImage & image, int x, int y, TGAColor color)
@@ -131,3 +130,5 @@ void draw_triangle(TGAImage & image, point a, point b, point c, point at, point 
 		draw_line(image, v1, v2, v1t, v2t, intensity_v1, intensity_v2, zbuffer, diffusemap);
 	}
 }
+
+#include "model.cpp"
