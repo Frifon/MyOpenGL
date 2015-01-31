@@ -1,4 +1,5 @@
 #include "draw.cpp"
+#include "constants.cpp"
 
 struct obj
 {
@@ -21,7 +22,6 @@ struct obj
 		string start;
 		while (fin >> start)
 		{
-			// cout << start << endl;
 			if (start == "v")
 			{
 				double x, y, z;
@@ -70,10 +70,16 @@ struct obj
 
 	}
 
-	void render(TGAImage & image, int width, int height, point light)
+	void render(TGAImage & image, int width, int height, point light, point camera, point center, point up)
 	{
+		for (int i = 0; i < width; i++)
+			for (int j = 0; j < height; j++)
+				draw_point(image, i, j, black);
 
 		light.normalize();
+		camera.normalize();
+		center.normalize();
+		up.normalize();
 
 		int depth = 255;
 
@@ -92,31 +98,41 @@ struct obj
 			point bt = texture[current.texture[1]];
 			point ct = texture[current.texture[2]];
 
-			// cout << current.normals[0] << " " << current.normals[1] << " " << current.normals[2] << endl;
+			point an = current.normals[0].normalize();
+			point bn = current.normals[1].normalize();
+			point cn = current.normals[2].normalize();
 
-			point an = current.normals[0];
-			point bn = current.normals[1];
-			point cn = current.normals[2];
+			matrix A = matrix(a);
+			matrix B = matrix(b);
+			matrix C = matrix(c);
 
-			an.normalize();
-			bn.normalize();
-			cn.normalize();
+			matrix AN = matrix(an, true);
+			matrix BN = matrix(bn, true);
+			matrix CN = matrix(cn, true);
 
-			a.x = (a.x + 1) * width / 2;
-			a.y = (a.y + 1) * height / 2;
-			a.z = (a.z + 1) * depth / 2;
+			matrix ViewPort = matrix().viewport(width, height, depth);
+			matrix Projection = matrix().projection(camera);
+			matrix Look = matrix().lookat(camera, center, up);
 
-			b.x = (b.x + 1) * width / 2;
-			b.y = (b.y + 1) * height / 2;
-			b.z = (b.z + 1) * depth / 2;
+			matrix M = ViewPort * Projection * Look;
 			
-			c.x = (c.x + 1) * width / 2;
-			c.y = (c.y + 1) * height / 2;
-			c.z = (c.z + 1) * depth / 2;
+			matrix Mtest = Projection * Look;
+
+			matrix MIT = Mtest.trans().inverse4();
+
+			a = (M * A).make_point();
+			b = (M * B).make_point();
+			c = (M * C).make_point();
+
+			// light = (Mtest * matrix(light, true)).make_vector().normalize();
+
+			an = (MIT * AN).make_vector().normalize();
+			bn = (MIT * BN).make_vector().normalize();
+			cn = (MIT * CN).make_vector().normalize();
 			
-			double intensity_a = an.x * light.x + an.y * light.y + an.z * light.z;
-			double intensity_b = bn.x * light.x + bn.y * light.y + bn.z * light.z;
-			double intensity_c = cn.x * light.x + cn.y * light.y + cn.z * light.z;
+			double intensity_a = an * light;
+			double intensity_b = bn * light;
+			double intensity_c = cn * light;
 
 			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap);
 		}

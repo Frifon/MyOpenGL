@@ -1,28 +1,35 @@
 #include "model.cpp"
 
-const TGAColor white = TGAColor(255, 255, 255, 255);
-const TGAColor red = TGAColor(255, 0, 0, 255);
-const TGAColor green = TGAColor(0, 255, 0, 255);
-const TGAColor blue = TGAColor(0, 0, 255, 255);
+void test()
+{
+	matrix D = matrix(4, 4);
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			D.data[i][j] = rand() % 100;
+	D.print();
+	cout << endl;
+	D.trans().print();
+	cout.precision(20);
+	cout << D.det4() << endl;
+	D.inverse4().print();
+}
 
 int main() {
 
-	const int width = 1000;
-	const int height = 1000;
+	if (TEST)
+	{
+		test();
+		return 0;
+	}
 
 	TGAImage image(width, height, TGAImage::RGB);
-	
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < height; j++)
-			draw_point(image, i, j, white);
 
 	obj African = obj("face.obj");
 
-	African.render(image, width, height, point(-1, 1, 1));
-	// African.render(image, width, height, point(-0.5, -0.2, 1));
-
-	image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
+	African.render(image, width, height, light, camera, center, up);
+	image.flip_vertically();
 	image.write_tga_file("output.tga");
+
 	return 0;
 }
 

@@ -17,18 +17,50 @@ struct point
 	{
 		cout << x << "/" << y << "/" << z; 
 	}
-	void normalize()
+	
+	point normalize()
 	{
 		double len = sqrt(x * x + y * y + z * z);
-		x /= len;
-		y /= len;
-		z /= len;
+		return point(x / len, y / len, z / len);
 	}
+
 	double len()
 	{
 		return sqrt(x * x + y * y + z * z);
 	}
+
 };
+
+point operator + (point const & pt, double a)
+{
+	return point(pt.x + a, pt.y + a, pt.z + a);
+}
+
+point operator - (point const & pt, double a)
+{
+	return point(pt.x - a, pt.y - a, pt.z - a);
+}
+
+point operator + (point const & a, point const & b)
+{
+	return point(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+point operator - (point const & a, point const & b)
+{
+	return point(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+double operator * (point const & pt1, point const & pt2)
+{
+	return pt1.x * pt2.x + pt1.y * pt2.y + pt1.z * pt2.z;
+}
+
+point operator ^ (point const & a, point const & b)
+{
+	// return point(a.z * b.y - a.y * b.z, a.x * b.z - a.z * b.x, a.y * b.x - a.x * b.y);
+	return point(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+}
 
 struct face
 {
