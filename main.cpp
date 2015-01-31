@@ -1,5 +1,3 @@
-#include "tgaimage.h"
-#include <vector>
 #include <fstream>
 #include <iostream>
 #include <cmath>
