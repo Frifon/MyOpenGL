@@ -14,4 +14,4 @@ const point center = point(0, 0, 0);
 const point up = point(0, 1, 0);
 
 const bool TEST = false;
-const bool normalmapping = false;
+const bool normalmapping = true;
