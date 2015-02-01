@@ -9,6 +9,7 @@ struct obj
 	vector <point> norm;
 
 	TGAImage diffusemap;
+	TGAImage xyzmap;
 	
 	obj()
 	{
@@ -65,6 +66,9 @@ struct obj
 		}
 		fin.close();
 
+		xyzmap.read_tga_file("xyzmap.tga");
+		xyzmap.flip_vertically();
+
 		diffusemap.read_tga_file("map.tga");
 		diffusemap.flip_vertically();
 
@@ -77,15 +81,15 @@ struct obj
 				draw_point(image, i, j, black);
 
 		light.normalize();
-		camera.normalize();
-		center.normalize();
+		// camera.normalize();
+		// center.normalize();
 		up.normalize();
 
 		int depth = 255;
 
 		light.normalize();
 
-		vector <vector <int> > zbuffer(width * 3, vector <int> (height * 3, -1000 * 1000 * 1000));
+		vector <vector <int> > zbuffer(width, vector <int> (height, -1000 * 1000 * 1000));
 
 		matrix ViewPort = matrix().viewport(width, height, depth);
 		matrix Projection = matrix().projection(camera);
@@ -121,17 +125,17 @@ struct obj
 			bn = (MminiIT * matrix(bn, true)).make_vector().normalize();
 			cn = (MminiIT * matrix(cn, true)).make_vector().normalize();
 
-			double spec_a = pow(max(0., (an * (an * light * 2) - light).normalize().z), 10);
-			double spec_b = pow(max(0., (bn * (bn * light * 2) - light).normalize().z), 10);
-			double spec_c = pow(max(0., (cn * (cn * light * 2) - light).normalize().z), 10);
+			double spec_a = pow(max(0., (an * (an * light * 2) - light).normalize().z), 6);
+			double spec_b = pow(max(0., (bn * (bn * light * 2) - light).normalize().z), 6);
+			double spec_c = pow(max(0., (cn * (cn * light * 2) - light).normalize().z), 6);
 			
-			// spec_a = spec_b = spec_c = 0;
+			spec_a = spec_b = spec_c = 0;
 
-			double intensity_a = min(1., an * light + 1 * spec_a);
-			double intensity_b = min(1., bn * light + 1 * spec_b);
-			double intensity_c = min(1., cn * light + 1 * spec_c);
+			double intensity_a = an * light + 11.5 * spec_a;
+			double intensity_b = bn * light + 11.5 * spec_b;
+			double intensity_c = cn * light + 11.5 * spec_c;
 
-			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap);
+			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap, xyzmap, light, MminiIT);
 		}
 	}
 };
