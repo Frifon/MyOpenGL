@@ -135,7 +135,7 @@ struct obj
 			double intensity_b = bn * light + 11.5 * spec_b;
 			double intensity_c = cn * light + 11.5 * spec_c;
 
-			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap, xyzmap, light, MminiIT);
+			draw_triangle(image, a, b, c, at, bt, ct, intensity_a, intensity_b, intensity_c, zbuffer, diffusemap, normalmapping, xyzmap, light, MminiIT);
 		}
 	}
 };

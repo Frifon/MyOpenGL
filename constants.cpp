@@ -13,4 +13,5 @@ const point camera = point(-3, 3, 10);
 const point center = point(0, 0, 0);
 const point up = point(0, 1, 0);
 
-bool TEST = false;
+const bool TEST = false;
+const bool normalmapping = false;

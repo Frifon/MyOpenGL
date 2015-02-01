@@ -6,7 +6,7 @@ void draw_point(TGAImage & image, int x, int y, TGAColor color)
 	image.set(x, y, color);
 }
 
-void draw_line(TGAImage & image, point a, point b, point at, point bt, double intensity_a, double intensity_b, vector < vector <int> > & zbuffer, TGAImage & diffusemap, TGAImage & xyzmap, point light, matrix MIT)
+void draw_line(TGAImage & image, point a, point b, point at, point bt, double intensity_a, double intensity_b, vector < vector <int> > & zbuffer, TGAImage & diffusemap, bool normalmapping, TGAImage & xyzmap, point light = point(), matrix MIT = matrix())
 {
 	bool reverse = false;
 
@@ -35,26 +35,23 @@ void draw_line(TGAImage & image, point a, point b, point at, point bt, double in
 		int tx = (at.x + t * (bt.x - at.x)) * diffusemap.get_width();
 		int ty = (at.y + t * (bt.y - at.y)) * diffusemap.get_height();
 
-		double intensity = intensity_a + t * (intensity_b - intensity_a);
+		double intensity = 0;
 
-		intensity = max(0., intensity);
-		intensity = min(1., intensity);
+		if (normalmapping)
+		{
+			TGAColor norm = xyzmap.get(tx, ty);
+			point n = point((double)norm.r / 127.5 - 1, (double)norm.g / 127.5 - 1, (double)norm.b / 127.5 - 1).normalize();
+			n = (MIT * matrix(n, true)).make_vector().normalize();
+			intensity = max(0., n * light);
 
-		// cout << endl << tx << " " << ty << endl;
-		TGAColor norm = xyzmap.get(tx, ty);
-		point n = point((double)norm.r / 127.5 - 1, (double)norm.g / 127.5 - 1, (double)norm.b / 127.5 - 1).normalize();
-		n = (MIT * matrix(n, true)).make_vector().normalize();
-		double new_intensity = max(0., n * light);
-
-		// cout << intensity << " " << new_intensity << endl;
-
-		// intensity = new_intensity;
-
-		// n.print();
-		// cout << endl;
-		// cout << intensity << " " << new_intensity << endl;
-
-		// TGAColor color = TGAColor(255, 255, 255, 255);
+		}
+		else
+		{
+			intensity = intensity_a + t * (intensity_b - intensity_a);
+			intensity = max(0., intensity);
+			intensity = min(1., intensity);
+		}
+		
 		TGAColor color = diffusemap.get(tx, ty);
 
 		if (!reverse)
@@ -77,7 +74,7 @@ void draw_line(TGAImage & image, point a, point b, point at, point bt, double in
 	}
 }
 
-void draw_triangle(TGAImage & image, point a, point b, point c, point at, point bt, point ct, double intensity_a, double intensity_b, double intensity_c, vector <vector <int> > & zbuffer, TGAImage & diffusemap, TGAImage & xyzmap, point light, matrix MIT)
+void draw_triangle(TGAImage & image, point a, point b, point c, point at, point bt, point ct, double intensity_a, double intensity_b, double intensity_c, vector <vector <int> > & zbuffer, TGAImage & diffusemap, bool normalmapping, TGAImage & xyzmap, point light = point(), matrix MIT = matrix())
 {
 
 	if (a.y > b.y) {swap(a, b); swap(at, bt); swap(intensity_a, intensity_b);}
@@ -110,7 +107,7 @@ void draw_triangle(TGAImage & image, point a, point b, point c, point at, point 
 			);
 		double intensity_v1 = intensity_a + (intensity_c - intensity_a) * alpha;
 		double intensity_v2 = intensity_a + (intensity_b - intensity_a) * beta;
-		draw_line(image, v1, v2, v1t, v2t, intensity_v1, intensity_v2, zbuffer, diffusemap, xyzmap, light, MIT);
+		draw_line(image, v1, v2, v1t, v2t, intensity_v1, intensity_v2, zbuffer, diffusemap, normalmapping, xyzmap, light, MIT);
 	}
 	for (int y = c.y; y >= b.y; y--)
 	{
@@ -138,6 +135,6 @@ void draw_triangle(TGAImage & image, point a, point b, point c, point at, point 
 			);
 		double intensity_v1 = intensity_c + (intensity_a - intensity_c) * alpha;
 		double intensity_v2 = intensity_c + (intensity_b - intensity_c) * beta;
-		draw_line(image, v1, v2, v1t, v2t, intensity_v1, intensity_v2, zbuffer, diffusemap, xyzmap, light, MIT);
+		draw_line(image, v1, v2, v1t, v2t, intensity_v1, intensity_v2, zbuffer, diffusemap, normalmapping, xyzmap, light, MIT);
 	}
 }
